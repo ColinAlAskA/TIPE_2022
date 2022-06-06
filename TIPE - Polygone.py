@@ -18,7 +18,7 @@ def agrandir2():
     mngr = plt.get_current_fig_manager()
     mngr.window.setGeometry(50,50,1800,1000)
     #f.set_tight_layout(True)
-    plt.tight_layout(pad=0.5)
+    plt.tight_layout(pad=0.1)
 
 ## Les polygones ##
 
@@ -178,10 +178,12 @@ print('-------------------------------------')
 # draw_liste_triangles(liste_triangles)
 
 
-plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='red')
+plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='black')
 
 liste_triangles = trianguler(poly)
 plt.axis([-20,30,-7,20])
+plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
 
 agrandir1()
 plt.show()
@@ -262,7 +264,7 @@ def orientation(X,Y,M):
     elif p==0: return(0)
     else: return(-1)
 
-def croisement(X,Y,P1,P2):
+def croisement(X,Y,P1,P2):  # Renvoie True si il y a croisement entre (XY) et (P1P2)
     if X==P1 or X==P2 or X==P1 or X==P1 or orientation(P1,P2,X)==0 or orientation(P1,P2,Y)==0:
         return False
     if orientation(P1,X,P2)==orientation(P1,X,Y) and orientation(P1,Y,X)==orientation(P1,Y,P2) and orientation(X,Y,P1) != orientation(X,Y,P2):
@@ -270,7 +272,7 @@ def croisement(X,Y,P1,P2):
     else:
         return False
 
-def croisement_polygone(X,Y,poly): #renvoie True si [XY] ne passe pas dans le polygone (donc si pb)
+def croisement_polygone(X,Y,poly): # Renvoie True si [XY] ne passe pas dans le polygone (donc si il y a un problème)
     for k in range(len(poly)):
         if croisement(X,Y,poly[k-1],poly[k]):
             return True
@@ -356,7 +358,7 @@ def PCC_Triangulation2(P,depart,arrivee):
         T=l_T[i]
         x=centre_triangle(T)
         if len(chemin)>0 and croisement_polygone(x,chemin[0],P):
-            # Cette partie sert uniquement à gérer les tracés qui passent hors limites du polygon
+            # Cette partie sert uniquement à gérer les tracés qui passent hors limites du polygone
             S_com = sommets_communs(l_T[j],l_T[i])
             d1=distance_2points(S_com[0],x)
             d2=distance_2points(S_com[1],x)
@@ -374,17 +376,30 @@ def PCC_Triangulation2(P,depart,arrivee):
 ##### Tracé graphique #####
 
 
-f = plt.figure()
-
-
-f.add_subplot(1,2,1)
-
-plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='black')
-plt.plot(depart[0],depart[1],marker='o')
-plt.plot(arrivee[0],arrivee[1],marker='o')
-
-
-f.add_subplot(1,2,2)
+# f = plt.figure()
+#
+#
+# f.add_subplot(1,2,1)
+# #
+# # plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='black')
+# # plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+# # plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
+#
+# l_triangles = trianguler(poly)
+# for T in l_triangles:
+#     plt.plot(np.array(T+[T[0]])[:,0],np.array(T+[T[0]])[:,1],color='blue')
+# plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='black')
+#
+#
+# chemin=PCC_Triangulation(poly,depart,arrivee)
+#
+# plt.plot(np.array(chemin)[:,0],np.array(chemin)[:,1],color='red')
+# plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+# plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
+#
+#
+#
+# f.add_subplot(1,2,2)
 
 l_triangles = trianguler(poly)
 for T in l_triangles:
@@ -397,20 +412,21 @@ chemin=PCC_Triangulation2(poly,depart,arrivee)
 
 distance=distance_chemin(chemin)
 
-plt.plot(np.array(chemin)[:,0],np.array(chemin)[:,1],color='red')
-plt.plot(depart[0],depart[1],marker='o')
-plt.plot(arrivee[0],arrivee[1],marker='o')
+plt.plot(np.array(chemin)[:,0],np.array(chemin)[:,1],color='red',linewidth=4)
+plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
+
 
 
 print("Distance du parcours :",distance)
 
-agrandir2()
+agrandir1()
 plt.show()
 
 ## Temps réel ##
 
 t1=time.time()
-chemin=PCC_Triangulation(poly,depart,arrivee)
+chemin=PCC_Triangulation2(poly,depart,arrivee)
 t2=time.time()
 
 print('Temps de calcul :',t2-t1)
@@ -573,8 +589,8 @@ f = plt.figure()
 f.add_subplot(1,2,1)
 
 plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='black')
-plt.plot(depart[0],depart[1],marker='o')
-plt.plot(arrivee[0],arrivee[1],marker='o')
+plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
 
 
 f.add_subplot(1,2,2)
@@ -589,8 +605,9 @@ chemin=PCC_Triangulation_opti(poly,depart,arrivee)
 distance=distance_chemin(chemin)
 
 plt.plot(np.array(chemin)[:,0],np.array(chemin)[:,1],color='red')
-plt.plot(depart[0],depart[1],marker='o')
-plt.plot(arrivee[0],arrivee[1],marker='o')
+plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
+
 
 
 print('Choix de la direction de parcours :',choix)
@@ -692,26 +709,46 @@ def successeurs(s,G):
             l.append(i)
     return(l)
 
+# def ajouter_file(file,sommet,distance):
+#     n=len(file)
+#     bool=True
+#     i=0
+#     while i<n :
+#         if bool and distance<file[i][1]:
+#             bool=False
+#             file=file[:i]+[(sommet,distance)]+file[i:]
+#             i+=1
+#             n+=1
+#         elif sommet==file[i][0]:
+#             if bool and distance>=file[i][1]:
+#                 bool=False
+#             else:
+#                 file.pop(i)
+#                 i-=1
+#                 n-=1
+#         i+=1
+#     if bool: return(file+[(sommet,distance)])
+#     else: return(file)
+
+
 def ajouter_file(file,sommet,distance):
-    n=len(file)
-    bool=True
-    i=0
-    while i<n :
-        if bool and distance<file[i][1]:
-            bool=False
-            file=file[:i]+[(sommet,distance)]+file[i:]
-            i+=1
-            n+=1
-        elif sommet==file[i][0]:
-            if bool and distance>=file[i][1]:
-                bool=False
+    b=len(file)-1
+    a=0
+    while a<=b:
+        m=(a+b)//2
+        if sommet==file[m][0]:
+            if distance<file[m][1]:
+                file.pop(m)
+                b=m-2
             else:
-                file.pop(i)
-                i-=1
-                n-=1
-        i+=1
-    if bool: return(file+[(sommet,distance)])
-    else: return(file)
+                return(file)
+        elif distance<file[m][1]:
+            b=m-1
+        else:
+            a=m+1
+    file=file[:a]+[(sommet,distance)]+file[a:]
+    return(file)
+
 
 
 def Dijkstra(G):
@@ -767,8 +804,9 @@ f = plt.figure()
 f.add_subplot(1,2,1)
 
 plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='black')
-plt.plot(depart[0],depart[1],marker='o')
-plt.plot(arrivee[0],arrivee[1],marker='o')
+plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
+
 
 
 f.add_subplot(1,2,2)
@@ -778,8 +816,9 @@ plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='blac
 chemin=PCC_Dijkstra(poly,depart,arrivee)
 
 plt.plot(np.array(chemin)[:,0],np.array(chemin)[:,1],color='red')
-plt.plot(depart[0],depart[1],marker='o')
-plt.plot(arrivee[0],arrivee[1],marker='o')
+plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
+
 
 print("Distance du parcours :",distance_chemin(chemin))
 
@@ -882,8 +921,9 @@ f = plt.figure()
 f.add_subplot(1,2,1)
 
 plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='black')
-plt.plot(depart[0],depart[1],marker='o')
-plt.plot(arrivee[0],arrivee[1],marker='o')
+plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
+
 
 
 f.add_subplot(1,2,2)
@@ -893,8 +933,8 @@ plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='blac
 chemin=PCC_GBFS(poly,depart,arrivee)
 
 plt.plot(np.array(chemin)[:,0],np.array(chemin)[:,1],color='red')
-plt.plot(depart[0],depart[1],marker='o')
-plt.plot(arrivee[0],arrivee[1],marker='o')
+plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
 
 agrandir2()
 plt.show()
@@ -994,8 +1034,9 @@ f = plt.figure()
 f.add_subplot(1,2,1)
 
 plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='black')
-plt.plot(depart[0],depart[1],marker='o')
-plt.plot(arrivee[0],arrivee[1],marker='o')
+plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
+
 
 
 f.add_subplot(1,2,2)
@@ -1005,8 +1046,8 @@ plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='blac
 chemin=PCC_Astar(poly,depart,arrivee)
 
 plt.plot(np.array(chemin)[:,0],np.array(chemin)[:,1],color='red')
-plt.plot(depart[0],depart[1],marker='o')
-plt.plot(arrivee[0],arrivee[1],marker='o')
+plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
 
 
 agrandir2()
@@ -1029,20 +1070,20 @@ print('Temps de calcul réel :',t2-t1)
 
 ##### Graphique de tous les chemins trouvés #####
 
-f = plt.figure()
-
-
-f.add_subplot(1,2,1)
-
-l_triangles = trianguler(poly)
-for T in l_triangles:
-    plt.plot(np.array(T+[T[0]])[:,0],np.array(T+[T[0]])[:,1],color='blue')
-plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='black')
-plt.plot(depart[0],depart[1],marker='o',markersize=8)
-plt.plot(arrivee[0],arrivee[1],marker='o',markersize=8)
-
-
-f.add_subplot(1,2,2)
+# f = plt.figure()
+#
+#
+# f.add_subplot(1,2,1)
+#
+# l_triangles = trianguler(poly)
+# for T in l_triangles:
+#     plt.plot(np.array(T+[T[0]])[:,0],np.array(T+[T[0]])[:,1],color='blue')
+# plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='black')
+# plt.plot(depart[0],depart[1],marker='o',markersize=8)
+# plt.plot(arrivee[0],arrivee[1],marker='o',markersize=8)
+#
+#
+# f.add_subplot(1,2,2)
 
 t0=time.time()
 chemin_triangulation=PCC_Triangulation2(poly,depart,arrivee)
@@ -1057,15 +1098,16 @@ t4=time.time()
 
 plt.plot(np.array(poly+[poly[0]])[:,0],np.array(poly+[poly[0]])[:,1],color='black')
 
-plt.plot(np.array(chemin_triangulation)[:,0],np.array(chemin_triangulation)[:,1],color='orange')
-plt.plot(np.array(chemin_GBFS)[:,0],np.array(chemin_GBFS)[:,1],color='green')
-plt.plot(np.array(chemin_Dijkstra)[:,0],np.array(chemin_Dijkstra)[:,1],color='red')
-plt.plot(np.array(chemin_Astar)[:,0],np.array(chemin_Astar)[:,1],color='blue',ls='--')
-plt.plot(depart[0],depart[1],marker='o',markersize=8)
-plt.plot(arrivee[0],arrivee[1],marker='o',markersize=8)
+plt.plot(np.array(chemin_triangulation)[:,0],np.array(chemin_triangulation)[:,1],color='red',linewidth=3,label="Triangulation")
+plt.plot(np.array(chemin_GBFS)[:,0],np.array(chemin_GBFS)[:,1],color='lime',linewidth=3,label='GBFS')
+plt.plot(np.array(chemin_Dijkstra)[:,0],np.array(chemin_Dijkstra)[:,1],color='magenta',linewidth=3,label='Dijkstra')
+plt.plot(np.array(chemin_Astar)[:,0],np.array(chemin_Astar)[:,1],color='blue',ls='--',linewidth=3,label='A*')
+plt.plot(depart[0],depart[1],marker='o',c='g',markersize=10)
+plt.plot(arrivee[0],arrivee[1],marker='o',c='orange',markersize=10)
+plt.legend(loc='lower right',fontsize=23)
 
 
-agrandir2()
+agrandir1()
 plt.show()
 
 
@@ -1084,16 +1126,64 @@ print("Distance du parcours avec A* :",d4)
 print('Temps de calcul réel :',np.round(t4-t3,5),'\n')
 
 
+##### Temps de calculs #####
+
+## Triangulation ##
+
+N=1000
+
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin_triangulation=PCC_Triangulation2(poly,depart,arrivee)
+    t1=time.time()
+    chemin_triangulation=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
 
 
+## GBFS ##
+
+N=1000
+
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin_GBFS=PCC_GBFS(poly,depart,arrivee)
+    t1=time.time()
+    chemin_GBFS=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
 
 
+## Dijkstra ##
+
+N=1000
+
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin_Dijkstra=PCC_Dijkstra(poly,depart,arrivee)
+    t1=time.time()
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
 
 
+## A* ##
 
+N=1000
 
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin_Astar=PCC_Astar(poly,depart,arrivee)
+    t1=time.time()
+    l.append(t1-t0)
 
-
+print(np.round(np.mean(l),5))
 
 
 
