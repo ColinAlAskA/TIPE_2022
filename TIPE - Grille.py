@@ -164,7 +164,6 @@ plt.imshow(M)
 
 f.add_subplot(1,2,2)
 
-
 chemin=PCC_BFS(M,depart,arrivee)
 print('Coût du chemin :',cout_chemin(M,chemin))
 
@@ -189,27 +188,46 @@ arrivee=(3,4)
 
 M=mur_ext(convertir(a))
 
+# def ajouter_file(file,case,distance):
+#     n=len(file)
+#     bool=True
+#     i=0
+#     while i<n :
+#         if bool and distance<file[i][1]:
+#             bool=False
+#             file=file[:i]+[(case,distance)]+file[i:]
+#             i+=1
+#             n+=1
+#         elif case==file[i][0]:
+#             if bool and distance>file[i][1]:
+#                 bool=False
+#             else:
+#                 file.pop(i)
+#                 i-=1
+#                 n-=1
+#         i+=1
+#     if bool: return(file+[(case,distance)])
+#     else: return(file)
+
+
 
 def ajouter_file(file,case,distance):
-    n=len(file)
-    bool=True
-    i=0
-    while i<n :
-        if bool and distance<file[i][1]:
-            bool=False
-            file=file[:i]+[(case,distance)]+file[i:]
-            i+=1
-            n+=1
-        elif case==file[i][0]:
-            if bool and distance>file[i][1]:
-                bool=False
+    b=len(file)-1
+    a=0
+    while a<=b:
+        m=(a+b)//2
+        if case==file[m][0]:
+            if distance<file[m][1]:
+                file.pop(m)
+                b=m-2
             else:
-                file.pop(i)
-                i-=1
-                n-=1
-        i+=1
-    if bool: return(file+[(case,distance)])
-    else: return(file)
+                return(file)
+        elif distance<file[m][1]:
+            b=m-1
+        else:
+            a=m+1
+    file=file[:a]+[(case,distance)]+file[a:]
+    return(file)
 
 
 def GBFS(M,depart,arrivee):  #depart et arrivee sous la forme d'un tuple
@@ -231,6 +249,7 @@ def GBFS(M,depart,arrivee):  #depart et arrivee sous la forme d'un tuple
             if C[v]== "blanc":
                 P[v]=pivot
                 d=distance_2points(v,arrivee)
+                #print('On ajoute :',(v,d))
                 file=ajouter_file(file,v,d)
                 C[v]="gris"
         k+=1
@@ -263,7 +282,7 @@ a[12,2:13]=0
 M=mur_ext(convertir(a))
 
 depart=(13,1)
-arrivee=(2,12)
+arrivee=(7,14)
 
 
 f = plt.figure()
@@ -272,15 +291,25 @@ f.add_subplot(1,2,1)
 
 M[depart]=[40, 180, 99]
 M[arrivee]=[235, 0, 0]
-plt.imshow(M)
 
-
-f.add_subplot(1,2,2)
-
-chemin=PCC_GBFS(M,depart,arrivee)
+chemin=PCC_BFS(M,depart,arrivee)
 print('Coût du chemin :',cout_chemin(M,chemin))
 
 plt.plot(np.array(chemin)[:,1],np.array(chemin)[:,0],color='blue',linewidth=5)
+plt.title("Parcours en largeur",fontsize=25)
+
+plt.imshow(M)
+
+f.add_subplot(1,2,2)
+
+M[depart]=[40, 180, 99]
+M[arrivee]=[235, 0, 0]
+
+chemin_GBFS=PCC_GBFS(M,depart,arrivee)
+print('Coût du chemin :',cout_chemin(M,chemin_GBFS))
+
+plt.plot(np.array(chemin_GBFS)[:,1],np.array(chemin_GBFS)[:,0],color='blue',linewidth=5)
+plt.title("Parcours en largeur glouton",fontsize=25)
 
 
 agrandir2()
@@ -314,7 +343,7 @@ def cout(M,case):
     if moyenne==0:
         return(cmax)
     elif moyenne==127:
-        return(7)
+        return(4)
     else:
         return(1)
 
@@ -509,6 +538,49 @@ plt.imshow(M)
 plt.show()
 
 
+## Affichage des deux ##
+
+a = np.array([[0,0,1,0.5,0.5,1,1,1,0,0],
+              [0,0,1,0.5,0.5,0.5,0.5,1,1,1],
+              [0,1,1,0.5,0,0.5,0.5,0.5,1,1],
+              [1,1,1,0.5,0.5,0.5,0.5,0.5,0.5,1],
+              [1,1,1,0.5,0.5,0.5,0.5,0,1,1],
+              [1,1,1,0.5,0.5,0,0.5,0.5,1,1],
+              [1,1,1,0.5,0.5,0.5,0.5,0.5,1,1],
+              [0,0,1,1,0.5,1,1,1,1,0],
+              [0,1,1,1,1,1,1,1,0,0],
+              [0,0,0,1,1,0,1,1,1,0]])
+depart=(4,1)
+arrivee=(2,10)
+M=mur_ext(convertir(a))
+M[depart]=[40, 180, 99]
+M[arrivee]=[235, 0, 0]
+
+
+f = plt.figure()
+
+f.add_subplot(1,2,1)
+
+chemin_Dijkstra=PCC_Dijkstra(M,depart,arrivee)
+print('Coût du chemin :',cout_chemin(M,chemin_Dijkstra))
+
+plt.plot(np.array(chemin_Dijkstra)[:,1],np.array(chemin_Dijkstra)[:,0],color='blue',linewidth=5)
+plt.title("Dijkstra",fontsize=25)
+
+plt.imshow(M)
+
+
+f.add_subplot(1,2,2)
+
+chemin_Astar=PCC_Astar(M,depart,arrivee)
+print('Coût du chemin :',cout_chemin(M,chemin_Astar))
+
+plt.plot(np.array(chemin_Astar)[:,1],np.array(chemin_Astar)[:,0],color='blue',linewidth=5)
+plt.title("A*",fontsize=25)
+
+agrandir2()
+plt.imshow(M)
+plt.show()
 
 
 
@@ -675,14 +747,21 @@ def inter_rectangle(M,coin,theta,largeur,longueur,couleur):
             M[case]=couleur
 
 
+c1=np.array([255,0,0])          # Rouge
+c2=np.array([124,50,0])         # Marron
+c3=np.array([252,161,11])       # Orange
+c4=np.array([241,235,54])       # Jaune
+
 def cout(M,case):
     moyenne=np.mean(M[case])
     if np.all(M[case]==c1):
-        return(5)
-    elif np.all(M[case]==c2):
-        return(2)
+        return(8)
+    # elif np.all(M[case]==c2):
+    #     return(4)
     elif np.all(M[case]==c3):
-        return(3)
+        return(6)
+    elif np.all(M[case]==c4):
+        return(2)
     else:
         if moyenne<220:
             return(cmax)
@@ -698,37 +777,45 @@ image = 'Paris'
 
 img0 = mpimg.imread (link + image + '.jpg')
 img = mur_ext(np.array(img0,dtype=int))
+print(np.shape(img)[:2])
 
 
 # circle1 = plt.Circle((465,345), 30,ec='r',fc='None')
 # fig, ax = plt.subplots()
 # ax.add_patch(circle1)
 
-depart=(419,206)
-arrivee=(135,638)
+##
 
+depart=(219,699)
+arrivee=(445,208)
 
-c1=np.array([255,0,0])
-c2=np.array([124,50,0])
-c3=np.array([252,161,11])
+##
+
+img = mur_ext(np.array(img0,dtype=int))
 
 t1=time.time()
 
-inter_cercle(img,(345,465),30,c1)
-inter_cercle(img,(225,254),30,c1)
-inter_cercle(img,(150,429),15,c2)
-inter_cercle(img,(239,609),15,c2)
-inter_cercle(img,(247,645),15,c2)
-inter_cercle(img,(188,594),15,c2)
-inter_cercle(img,(203,574),10,c2)
-inter_cercle(img,(532,424),15,c2)
-inter_cercle(img,(328,202),10,c2)
+inter_cercle(img,(345,465),40,c1)
+inter_cercle(img,(225,254),40,c1)
+inter_cercle(img,(378,651),40,c1)
+
+# inter_cercle(img,(150,429),15,c2)
+# inter_cercle(img,(239,609),15,c2)
+# inter_cercle(img,(247,645),15,c2)
+# inter_cercle(img,(188,594),15,c2)
+# inter_cercle(img,(203,574),10,c2)
+# inter_cercle(img,(532,424),15,c2)
+# inter_cercle(img,(328,202),10,c2)
 
 
 inter_rectangle(img,(381,280),pi/4,52,106,c3)
 inter_rectangle(img,(317,427),1.12,20,23,c1)
 inter_rectangle(img,(317,401),1.12,33,65,c3)
 inter_rectangle(img,(278,348),1.12,16,80,c3)
+
+for _ in range(20):
+    a,b=r.randint(100,550),r.randint(100,700)
+    inter_cercle(img,(a,b),50,c4)
 
 
 t2=time.time()
@@ -777,17 +864,81 @@ print('Coût du chemin :',cout_chemin(A,chemin_Astar))
 
 ## Sur la carte classique
 
-plt.plot(np.array(chemin_BFS)[:,1],np.array(chemin_BFS)[:,0],color='blue',linewidth=2)
-plt.plot(np.array(chemin_GBFS)[:,1],np.array(chemin_GBFS)[:,0],color='cyan',linewidth=2)
-plt.plot(np.array(chemin_Dijkstra)[:,1],np.array(chemin_Dijkstra)[:,0],color='green',linewidth=2)
-plt.plot(np.array(chemin_Astar)[:,1],np.array(chemin_Astar)[:,0],color='purple',linewidth=2)
+plt.plot(np.array(chemin_BFS)[:,1],np.array(chemin_BFS)[:,0],color='blue',linewidth=3)
+plt.plot(np.array(chemin_GBFS)[:,1],np.array(chemin_GBFS)[:,0],color='cyan',linewidth=3)
+plt.plot(np.array(chemin_Dijkstra)[:,1],np.array(chemin_Dijkstra)[:,0],color='magenta',linewidth=3)
+plt.plot(np.array(chemin_Astar)[:,1],np.array(chemin_Astar)[:,0],color='green',linewidth=3)
 
-plt.plot(depart[1],depart[0],color="g",marker='o',markersize=4)
-plt.plot(arrivee[1],arrivee[0],color='r',marker='o',markersize=4)
+plt.plot(depart[1],depart[0],color="lime",marker='o',markersize=10)
+plt.plot(arrivee[1],arrivee[0],color='r',marker='o',markersize=10)
 
 plt.imshow(A)
 agrandir1()
 plt.show()
+
+
+##### Temps des calculs #####
+
+## BFS ##
+
+N=1
+
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin_BFS=PCC_BFS(A,depart,arrivee)
+    t1=time.time()
+    chemin_BFS=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
+
+
+## GBFS ##
+
+N=1
+
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin_GBFS=PCC_GBFS(A,depart,arrivee)
+    t1=time.time()
+    chemin_GBFS=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
+
+
+## Dijkstra ##
+
+N=1
+
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin_Dijkstra=PCC_Dijkstra(A,depart,arrivee)
+    t1=time.time()
+    chemin_Dijkstra=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
+
+
+## A* ##
+
+N=1
+
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin_Astar=PCC_Astar(A,depart,arrivee)
+    t1=time.time()
+    chemin_Astar=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
+
+
 
 
 
@@ -817,6 +968,9 @@ print(np.shape(img))
 
 depart=(105,237)
 arrivee=(465,458)
+
+plt.plot(depart[1],depart[0],color="lime",marker='o',markersize=10)
+plt.plot(arrivee[1],arrivee[0],color='r',marker='o',markersize=10)
 
 plt.imshow(img)
 agrandir1()
@@ -852,39 +1006,45 @@ Ac=carte_cout(A)
 
 # ATTENTION : temps d'attente plutôt élevé !
 
-chemin=PCC_BFS(A,depart,arrivee)
+chemin_BFS=PCC_BFS(A,depart,arrivee)
 print('\nChemin trouvé')
-print('Coût du chemin :',cout_chemin(A,chemin))
+print('Coût du chemin :',cout_chemin(A,chemin_BFS))
 
 ##### Tracé graphique GBFS #####
 
 # ATTENTION : temps d'attente plutôt élevé !
 
-chemin=PCC_GBFS(A,depart,arrivee)
+chemin_GBFS=PCC_GBFS(A,depart,arrivee)
 print('\nChemin trouvé')
-print('Coût du chemin :',cout_chemin(A,chemin))
+print('Coût du chemin :',cout_chemin(A,chemin_GBFS))
 
 ##### Tracé graphique Dijkstra #####
 
 # ATTENTION : temps d'attente plutôt élevé !
 
-chemin=PCC_Dijkstra(A,depart,arrivee)
+chemin_Dijkstra=PCC_Dijkstra(A,depart,arrivee)
 print('\nChemin trouvé')
-print('Coût du chemin :',cout_chemin(A,chemin))
+print('Coût du chemin :',cout_chemin(A,chemin_Dijkstra))
 
 ##### Tracé graphique A* #####
 
 # ATTENTION : temps d'attente plutôt élevé !
 
-chemin=PCC_Astar(A,depart,arrivee)
+chemin_Astar=PCC_Astar(A,depart,arrivee)
 print('\nChemin trouvé')
-print('Coût du chemin :',cout_chemin(A,chemin))
+print('Coût du chemin :',cout_chemin(A,chemin_Astar))
 
 ## Sur la carte des coûts
 
-plt.plot(np.array(chemin)[:,1],np.array(chemin)[:,0],color='blue',linewidth=2)
-plt.plot(depart[1],depart[0],color="g",marker='o',markersize=4)
-plt.plot(arrivee[1],arrivee[0],color='r',marker='o',markersize=4)
+plt.plot(np.array(chemin_BFS)[:,1],np.array(chemin_BFS)[:,0],color='red',linewidth=3,label="BFS")
+plt.plot(np.array(chemin_GBFS)[:,1],np.array(chemin_GBFS)[:,0],color='cyan',linewidth=3,label="GBFS")
+plt.plot(np.array(chemin_Dijkstra)[:,1],np.array(chemin_Dijkstra)[:,0],color='blue',ls='--',linewidth=3,label="Dijkstra")
+plt.plot(np.array(chemin_Astar)[:,1],np.array(chemin_Astar)[:,0],color='magenta',linewidth=3,label="A*")
+
+plt.plot(depart[1],depart[0],color="lime",marker='o',markersize=10)
+plt.plot(arrivee[1],arrivee[0],color='r',marker='o',markersize=10)
+
+plt.legend(loc='lower right',fontsize=18)
 
 plt.imshow(Ac,cmap='gray')
 agrandir1()
@@ -893,9 +1053,15 @@ plt.show()
 
 ## Sur la carte classique
 
-plt.plot(np.array(chemin)[:,1],np.array(chemin)[:,0],color='cyan',linewidth=2)
-plt.plot(depart[1],depart[0],color="g",marker='o',markersize=4)
-plt.plot(arrivee[1],arrivee[0],color='r',marker='o',markersize=4)
+plt.plot(np.array(chemin_BFS)[:,1],np.array(chemin_BFS)[:,0],color='red',linewidth=3,label="BFS")
+plt.plot(np.array(chemin_GBFS)[:,1],np.array(chemin_GBFS)[:,0],color='cyan',linewidth=3,label="GBFS")
+plt.plot(np.array(chemin_Dijkstra)[:,1],np.array(chemin_Dijkstra)[:,0],color='blue',ls='--',linewidth=3,label="Dijkstra")
+plt.plot(np.array(chemin_Astar)[:,1],np.array(chemin_Astar)[:,0],color='magenta',linewidth=3,label="A*")
+
+plt.plot(depart[1],depart[0],color="lime",marker='o',markersize=10)
+plt.plot(arrivee[1],arrivee[0],color='r',marker='o',markersize=10)
+
+plt.legend(loc='lower right',fontsize=18)
 
 plt.imshow(A)
 agrandir1()
@@ -905,6 +1071,67 @@ plt.show()
 
 
 
+
+##### Temps des calculs #####
+
+## BFS ##
+
+N=1
+
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin_BFS=PCC_BFS(A,depart,arrivee)
+    t1=time.time()
+    chemin_BFS=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
+
+
+## GBFS ##
+
+N=1
+
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin_GBFS=PCC_GBFS(A,depart,arrivee)
+    t1=time.time()
+    chemin_GBFS=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
+
+
+## Dijkstra ##
+
+N=1
+
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin_Dijkstra=PCC_Dijkstra(A,depart,arrivee)
+    t1=time.time()
+    chemin_Dijkstra=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
+
+
+## A* ##
+
+N=1
+
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin_Astar=PCC_Astar(A,depart,arrivee)
+    t1=time.time()
+    chemin_Astar=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
 
 
 
@@ -947,11 +1174,11 @@ plt.show()
 
 
 
-################################
-##### Labyrinthe aléatoire #####
-################################
+###########################
+##### Carte aléatoire #####
+###########################
 
-# Dimensions du labyrinthe :
+# Dimensions de la carte :
 p,q=100,100
 
 img=mur_ext(255*np.ones((p,q,3),dtype=int))
@@ -959,9 +1186,9 @@ img=mur_ext(255*np.ones((p,q,3),dtype=int))
 depart=(33,23)
 arrivee=(p,q-18)
 
-c1=[224,205,169]
-c2=[53, 194, 53]
-c3=[37, 77, 213]
+c1=[224,205,169]        # Sable
+c2=[53, 194, 53]        # Herbe
+c3=[37, 77, 213]        # Eau
 blanc=[255,255,255]
 noir=[0,0,0]
 
@@ -1041,19 +1268,21 @@ def applique_trait(M,B,bool,case,couleur,k):
 
 def cout(M,case):
     moyenne=np.mean(M[case])
-    if np.all(M[case]==c1):
-        return(1)
-    elif np.all(M[case]==c2):
+    if np.all(M[case]==c1):         # Sable
         return(2)
-    elif np.all(M[case]==c3):
+    elif np.all(M[case]==c2):       # Herbe
+        return(1)
+    elif np.all(M[case]==c3):       # Eau
         return(5)
-    elif np.all(M[case]==blanc):
+    elif np.all(M[case]==blanc):    # Piège
         return(10)
     else:
         return(cmax)
 
 
 ##
+
+B=mur_ext_False(np.array([[True for _ in range(q)] for _ in range(p)]))
 
 def initialise(M,P,Pherbe,Peau):
 # Peau + Herbe + Ppiege = 1 et P = la proba que la case soit un obstacle*
@@ -1063,7 +1292,7 @@ def initialise(M,P,Pherbe,Peau):
     M[1:33,1:32]=maison
     M[p-15:p+1,q-17:q+1]=coffre
     B=mur_ext_False(np.array([[True for _ in range(q)] for _ in range(p)]))
-    B[:36,:33]=False
+    B[:36,:34]=False
     B[p-16:,q-18:]=False
 
     for i in range(1,p+1):
@@ -1075,7 +1304,7 @@ def initialise(M,P,Pherbe,Peau):
                     P2=P1+Peau
                     Y=r.random()
                     if Y<=P1:                                    # Herbe
-                        M=applique_carre(M,B,(i,j),c2,3)
+                        M=applique_carre(M,B,(i,j),c2,4)
                     elif (P1<Y) and (Y<=P2):                     # Eau
                         M=applique_carre(M,B,(i,j),c3,5)
                     else:                                        # Piege
@@ -1089,7 +1318,7 @@ def initialise(M,P,Pherbe,Peau):
     return(M)
 
 A=c.deepcopy(img)
-A=initialise(A,0.1,0.18,0.1)
+A=initialise(A,0.2,0.07,0.05)
 
 plt.imshow(A)
 agrandir1()
@@ -1134,10 +1363,10 @@ print('Coût du chemin :',cout_chemin(A,chemin_Astar))
 
 ## Sur la carte classique
 
-plt.plot(np.array(chemin_BFS)[:,1],np.array(chemin_BFS)[:,0],color='magenta',linewidth=3)
-plt.plot(np.array(chemin_GBFS)[:,1],np.array(chemin_GBFS)[:,0],color='cyan',linewidth=3)
-plt.plot(np.array(chemin_Dijkstra)[:,1],np.array(chemin_Dijkstra)[:,0],color='gray',linewidth=3)
-plt.plot(np.array(chemin_Astar)[:,1],np.array(chemin_Astar)[:,0],color='red',linewidth=3)
+plt.plot(np.array(chemin_BFS)[:,1],np.array(chemin_BFS)[:,0],color='magenta',linewidth=4)
+plt.plot(np.array(chemin_GBFS)[:,1],np.array(chemin_GBFS)[:,0],color='orange',linewidth=4)
+plt.plot(np.array(chemin_Dijkstra)[:,1],np.array(chemin_Dijkstra)[:,0],color='yellow',linewidth=4)
+plt.plot(np.array(chemin_Astar)[:,1],np.array(chemin_Astar)[:,0],color='red',linewidth=4)
 
 plt.plot(depart[1],depart[0],color="g",marker='o',markersize=4)
 plt.plot(arrivee[1],arrivee[0],color='r',marker='o',markersize=4)
@@ -1149,6 +1378,70 @@ plt.show()
 
 
 
+##### Temps des calculs #####
+
+## BFS ##
+
+N=10
+
+l=[]
+for _ in range(N):
+    A=initialise(A,0.2,0.07,0.05)
+    t0=time.time()
+    chemin_BFS=PCC_BFS(A,depart,arrivee)
+    t1=time.time()
+    chemin_BFS=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
+
+
+## GBFS ##
+
+N=10
+
+l=[]
+for _ in range(N):
+    A=initialise(A,0.2,0.07,0.05)
+    t0=time.time()
+    chemin_GBFS=PCC_GBFS(A,depart,arrivee)
+    t1=time.time()
+    chemin_GBFS=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
+
+
+## Dijkstra ##
+
+N=10
+
+l=[]
+for _ in range(N):
+    A=initialise(A,0.2,0.07,0.05)
+    t0=time.time()
+    chemin_Dijkstra=PCC_Dijkstra(A,depart,arrivee)
+    t1=time.time()
+    chemin_Dijkstra=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
+
+
+## A* ##
+
+N=10
+
+l=[]
+for _ in range(N):
+    A=initialise(A,0.2,0.07,0.05)
+    t0=time.time()
+    chemin_Astar=PCC_Astar(A,depart,arrivee)
+    t1=time.time()
+    chemin_Astar=[]
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
 
 
 
@@ -1156,6 +1449,204 @@ plt.show()
 
 
 
+
+##########################
+##### WA* pour Paris #####
+##########################
+
+
+def WAstar(M,w,depart,arrivee):
+    # ici, depart et arrivée sont sous la forme d'un tuple
+    p,q=np.shape(M)[:2]
+    file=[(depart,0)]
+
+    C=np.array([["blanc" for _ in range(q)] for _ in range(p)])
+    P=np.array([[None for _ in range(q)] for _ in range(p)])
+    D=np.array([[np.infty for _ in range(q)] for _ in range(p)])
+
+    P[depart]=(-1,-1)
+    D[depart]=0
+
+    k=1
+    while file!=[]:
+        if k%10000 ==0 : print(k)
+        pivot=file.pop(0)[0]
+        C[pivot]="noir"
+        if pivot==arrivee:
+            break
+        for (v,d) in voisins(M,pivot,deplacement_diag):
+            if d:
+                newD=np.round(D[pivot]+cout(M,v)*sqrt(2),2)
+            else:
+                newD=np.round(D[pivot]+cout(M,v),2)
+            if C[v]=="blanc" and newD < D[v]:
+                D[v]=newD
+                P[v]=pivot
+                d=np.round(newD + w*distance_2points(v,arrivee),2)
+                file=ajouter_file(file,v,d)
+        #print(file,'\n')
+        k+=1
+    return(P)
+
+
+def PCC_WAstar(M,w,depart,arrivee): #depart et arrivee sous la forme de tuples
+    P=WAstar(M,w,depart,arrivee)
+    x=arrivee
+    chemin=[x]
+    while x != depart:
+        x=P[x]
+        chemin = [x] + chemin
+    return(chemin)
+
+## Image de travail ##
+
+link = 'C:/Colin/Cours/3ème année/TIPE/Images/'
+image = 'Paris'
+
+img0 = mpimg.imread (link + image + '.jpg')
+img = mur_ext(np.array(img0,dtype=int))
+print(np.shape(img)[:2])
+
+
+# circle1 = plt.Circle((465,345), 30,ec='r',fc='None')
+# fig, ax = plt.subplots()
+# ax.add_patch(circle1)
+
+##
+
+depart=(116,465)
+arrivee=(366,252)
+
+
+
+
+##
+
+img = mur_ext(np.array(img0,dtype=int))
+
+t1=time.time()
+
+inter_cercle(img,(345,465),40,c1)
+inter_cercle(img,(225,254),40,c1)
+inter_cercle(img,(378,651),40,c1)
+
+# inter_cercle(img,(150,429),15,c2)
+# inter_cercle(img,(239,609),15,c2)
+# inter_cercle(img,(247,645),15,c2)
+# inter_cercle(img,(188,594),15,c2)
+# inter_cercle(img,(203,574),10,c2)
+# inter_cercle(img,(532,424),15,c2)
+# inter_cercle(img,(328,202),10,c2)
+
+
+inter_rectangle(img,(381,280),pi/4,52,106,c3)
+inter_rectangle(img,(317,427),1.12,20,23,c1)
+inter_rectangle(img,(317,401),1.12,33,65,c3)
+inter_rectangle(img,(278,348),1.12,16,80,c3)
+
+for _ in range(20):
+    a,b=r.randint(100,550),r.randint(100,700)
+    inter_cercle(img,(a,b),50,c4)
+
+
+t2=time.time()
+
+print("Temps de calcul des opérations annexes sur l'image :",np.round(t2-t1,4))
+
+plt.imshow(img)
+agrandir1()
+plt.show()
+
+
+A=c.deepcopy(img)
+
+
+
+##### Tracé graphique 1 #####
+
+# ATTENTION : temps d'attente plutôt élevé !
+
+chemin1=PCC_WAstar(A,0,depart,arrivee)
+print('\nChemin trouvé')
+print('Coût du chemin :',cout_chemin(A,chemin1))
+
+##### Tracé graphique 2 #####
+
+# ATTENTION : temps d'attente plutôt élevé !
+
+chemin2=PCC_WAstar(A,1,depart,arrivee)
+print('\nChemin trouvé')
+print('Coût du chemin :',cout_chemin(A,chemin2))
+
+##### Tracé graphique 3 #####
+
+# ATTENTION : temps d'attente plutôt élevé !
+
+chemin3=PCC_WAstar(A,2,depart,arrivee)
+print('\nChemin trouvé')
+print('Coût du chemin :',cout_chemin(A,chemin3))
+
+##### Tracé graphique 4 #####
+
+# ATTENTION : temps d'attente plutôt élevé !
+
+chemin4=PCC_WAstar(A,5,depart,arrivee)
+print('\nChemin trouvé')
+print('Coût du chemin :',cout_chemin(A,chemin4))
+
+##### Tracé graphique 5 #####
+
+# ATTENTION : temps d'attente plutôt élevé !
+
+chemin5=PCC_WAstar(A,10,depart,arrivee)
+print('\nChemin trouvé')
+print('Coût du chemin :',cout_chemin(A,chemin5))
+
+##### Tracé graphique 6 #####
+
+# ATTENTION : temps d'attente plutôt élevé !
+
+chemin6=PCC_WAstar(A,50,depart,arrivee)
+print('\nChemin trouvé')
+print('Coût du chemin :',cout_chemin(A,chemin6))
+
+
+## Sur la carte classique
+
+plt.plot(np.array(chemin6)[:,1],np.array(chemin6)[:,0],color=('#2DF497'),linewidth=3,label="w=50")
+plt.plot(np.array(chemin5)[:,1],np.array(chemin5)[:,0],color=('#00FFF7'),linewidth=3,label="w=10")
+plt.plot(np.array(chemin4)[:,1],np.array(chemin4)[:,0],color=('#00AEFF'),linewidth=3,label="w=5")
+plt.plot(np.array(chemin3)[:,1],np.array(chemin3)[:,0],color=('#0065FF'),linewidth=3,label="w=2")
+plt.plot(np.array(chemin2)[:,1],np.array(chemin2)[:,0],color=('#3100CD'),linewidth=3,label="w=1")
+plt.plot(np.array(chemin1)[:,1],np.array(chemin1)[:,0],color=('#1A245B'),linewidth=3,label="w=0")
+
+
+plt.plot(depart[1],depart[0],color="lime",marker='o',markersize=10)
+plt.plot(arrivee[1],arrivee[0],color='r',marker='o',markersize=10)
+plt.legend(loc='lower right',fontsize=25,framealpha=1)
+
+plt.imshow(A)
+agrandir1()
+plt.show()
+
+
+
+
+##### Temps des calculs #####
+
+## WA* ##
+
+N=1
+w=0
+
+l=[]
+for _ in range(N):
+    t0=time.time()
+    chemin=PCC_WAstar(A,w,depart,arrivee)
+    t1=time.time()
+    l.append(t1-t0)
+
+print(np.round(np.mean(l),5))
 
 
 
