@@ -117,7 +117,6 @@ ax.add_patch(Cercle)
 plt.show()
 
 
-
 ##
 
 import random as r
